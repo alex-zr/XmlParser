@@ -1,6 +1,5 @@
 package parser.parser;
 
-import parser.common.ReflexUtil;
 import parser.configuration.Config;
 
 import java.util.Iterator;

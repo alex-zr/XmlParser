@@ -1,10 +1,9 @@
-package parser.common;
+package parser.parser;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import parser.common.ParseException;
 import parser.configuration.Config;
-import parser.model.NestedSetTree;
-import parser.parser.StrEntry;
 import parser.types.Type;
 import parser.types.TypeFactory;
 
@@ -82,10 +81,10 @@ public class ReflexUtil {
         return charIdx < parseString.length();
     }
 
-    public Object instantiateObj(List<NestedSetTree<Class>> classForest, String className, String content) throws IllegalAccessException, InstantiationException {
-        for(NestedSetTree<Class> classTree : classForest) {
-            if(classTree.getRoot().getName().contains(className)) {
-                Object obj = classTree.getRoot().newInstance();
+    public Object instantiateObj(List<Class> classes, String className, String content) throws IllegalAccessException, InstantiationException {
+        for(Class clazz : classes) {
+            if(clazz.getName().contains(className)) {
+                Object obj = clazz.newInstance();
                 fillBySimpleContent(obj, content);
                 return obj;
             }

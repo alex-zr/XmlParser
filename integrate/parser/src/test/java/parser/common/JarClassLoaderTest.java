@@ -1,6 +1,7 @@
 package parser.common;
 
 import org.junit.Test;
+import parser.loaders.JarClassLoader;
 
 import java.io.IOException;
 import java.util.ArrayList;

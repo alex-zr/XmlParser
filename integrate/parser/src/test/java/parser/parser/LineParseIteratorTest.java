@@ -2,7 +2,6 @@ package parser.parser;
 
 import org.junit.Before;
 import org.junit.Test;
-import parser.common.ReflexUtil;
 import parser.configuration.Config;
 
 import static org.junit.Assert.assertEquals;

@@ -1,4 +1,6 @@
-package parser.common;
+package parser.loaders;
+
+import parser.common.LogicException;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -31,11 +33,6 @@ public class JarClassLoader {
         }
     }
 
-    private static String classPathToClassName(String entry) {
-        String name = entry.replace(CLASS_EXTENSION, "");
-        return name.replace("/", ".");
-    }
-
     public List<Class> getClasses() {
         List<Class> classes = new ArrayList<Class>();
         try {
@@ -53,6 +50,11 @@ public class JarClassLoader {
         }
 
         return classes;
+    }
+
+    private static String classPathToClassName(String entry) {
+        String name = entry.replace(CLASS_EXTENSION, "");
+        return name.replace("/", ".");
     }
 
     private List<String> getClassNamesFromJar() {
