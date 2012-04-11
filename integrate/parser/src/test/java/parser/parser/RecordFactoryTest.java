@@ -4,7 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import parser.configuration.Config;
 import parser.parser2.Record;
-import parser.parser2.RecordFactory;
+import parser.parser2.PropertiesParser2Impl;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -18,7 +18,7 @@ import static org.mockito.Mockito.when;
 public class RecordFactoryTest {
 
     private Config mockConfig;
-    private RecordFactory factory;
+    private PropertiesParser2Impl factory;
 
     @Before
     public void startUp() {
@@ -27,7 +27,7 @@ public class RecordFactoryTest {
 
     @Test
     public void testCreateField() {
-        factory = new RecordFactory(mockConfig);
+        factory = new PropertiesParser2Impl(mockConfig);
         Record record = factory.getInstance("opa:opapa", 0);
         assertEquals("opa", record.getName());
         assertEquals("opapa", record.getValue().getContent());
@@ -35,7 +35,7 @@ public class RecordFactoryTest {
 
     @Test
     public void testCreateClass() {
-        factory = new RecordFactory(mockConfig);
+        factory = new PropertiesParser2Impl(mockConfig);
         Record record = factory.getInstance("A()", 0);
         assertEquals("A", record.getName());
         assertEquals("", record.getValue().getContent());
@@ -43,7 +43,7 @@ public class RecordFactoryTest {
 
     @Test
     public void testCreateClassWithField() {
-        factory = new RecordFactory(mockConfig);
+        factory = new PropertiesParser2Impl(mockConfig);
         Record record = factory.getInstance("A(opa:opapa)", 0);
         assertEquals("A", record.getName());
         assertEquals("opa", record.getValue().getName());
@@ -52,7 +52,7 @@ public class RecordFactoryTest {
 
     @Test
     public void testCreateClassWithClass() {
-        factory = new RecordFactory(mockConfig);
+        factory = new PropertiesParser2Impl(mockConfig);
         Record record = factory.getInstance("A(opa:A())", 0);
         assertEquals("A", record.getName());
         assertEquals("opa", record.getValue().getName());
@@ -61,7 +61,7 @@ public class RecordFactoryTest {
 
     @Test
     public void testCreateClassWithClassAndField() {
-        factory = new RecordFactory(mockConfig);
+        factory = new PropertiesParser2Impl(mockConfig);
         Record record = factory.getInstance("A(opa:A(opa:opapa))", 0);
         assertEquals("A", record.getName());
         assertEquals("opa", record.getValue().getName());
