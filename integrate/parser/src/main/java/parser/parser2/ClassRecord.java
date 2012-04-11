@@ -18,7 +18,11 @@ public class ClassRecord implements Record {
 
     @Override
     public int getLength() {
-        return name.length() + values.size();
+        int valuesSize = 0;
+        for(Record rec: values) {
+            valuesSize += rec.getLength();
+        }
+        return name.length() + valuesSize;
     }
 
     @Override
