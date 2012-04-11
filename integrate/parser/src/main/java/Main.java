@@ -5,6 +5,8 @@ import parser.loaders.JarClassLoader;
 import parser.loaders.PropertiesFilesLoader;
 import parser.parser.PropertiesParser;
 import parser.parser.ReflexUtil;
+import parser.parser2.PropertiesParser2Impl;
+import parser.parser2.RecordFactory;
 import parser.writer.ModelXmlWriter;
 
 import java.util.List;
@@ -27,6 +29,7 @@ public class Main {
     private PropertiesParser parser;
     private ModelXmlWriter writer;
     private ReflexUtil util;
+    private RecordFactory factory;
 
     private void init() {
         config = new Config();
@@ -34,7 +37,8 @@ public class Main {
         classLoader = new JarClassLoader(config.getJarPath());
         util = new ReflexUtil(config);
         //builder = new ClassStructureBuilder(classLoader.getClasses());
-        parser = new PropertiesParser(util, config, classLoader.getClasses());
+        factory = new RecordFactory(config);
+        parser = new PropertiesParser2Impl(factory);
         prLoader = new PropertiesFilesLoader(parser, config);
         writer = new ModelXmlWriter(config.getOutput());
     }
