@@ -7,22 +7,29 @@ import java.util.List;
  * User: al1
  * Date: 11.04.12
  */
-public class ClassRecord implements Record {
+public class ClassRecord extends Record {
     private String name;
     private List<Record> values;
+    private String content;
 
     public ClassRecord(String className, List<Record> classValues) {
         this.name = className;
         this.values = classValues;
     }
 
+    public ClassRecord(String className, List<Record> classValues, String classContent) {
+        this(className, classValues);
+        this.content = classContent;
+    }
+
     @Override
     public int getLength() {
-        int valuesSize = 0;
-        for(Record rec: values) {
-            valuesSize += rec.getLength();
-        }
-        return name.length() + valuesSize;
+        return content.length();
+//        int valuesSize = 0;
+//        for(Record rec: values) {
+//            valuesSize += rec.getLength();
+//        }
+//        return name.length() + 2 + valuesSize; // 2 - parenteses size
     }
 
     @Override
@@ -32,11 +39,15 @@ public class ClassRecord implements Record {
 
     @Override
     public Record getValue() {
-        return values.get(0);
+        return null;
+    }
+
+    public List<Record> getValues() {
+        return values;
     }
 
     @Override
     public String getContent() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return content;
     }
 }

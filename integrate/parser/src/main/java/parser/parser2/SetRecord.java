@@ -5,7 +5,7 @@ package parser.parser2;
  * User: al1
  * Date: 11.04.12
  */
-public class SetRecord implements Record {
+public class SetRecord extends Record {
     @Override
     public int getLength() {
         return 0;  //To change body of implemented methods use File | Settings | File Templates.

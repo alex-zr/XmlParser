@@ -5,7 +5,7 @@ package parser.parser2;
  * User: al1
  * Date: 11.04.12
  */
-public class ValueRecord implements Record {
+public class ValueRecord extends Record {
     private String content;
 
     public ValueRecord(String content) {
@@ -29,6 +29,6 @@ public class ValueRecord implements Record {
 
     @Override
     public String getContent() {
-        return content;  //To change body of implemented methods use File | Settings | File Templates.
+        return content;
     }
 }

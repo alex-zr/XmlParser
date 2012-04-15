@@ -5,9 +5,14 @@ package parser.parser2;
  * User: al1
  * Date: 11.04.12
  */
-public interface Record {
-    int getLength();
-    String getName();
-    Record getValue();
-    String getContent();
+public abstract class Record {
+    public abstract int getLength();
+    public abstract String getName();
+    public abstract Record getValue();
+    public abstract String getContent();
+
+    @Override
+    public String toString() {
+        return getContent();
+    }
 }

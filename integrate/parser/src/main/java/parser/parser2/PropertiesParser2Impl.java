@@ -6,6 +6,7 @@ import parser.configuration.Config;
 import parser.parser.PropertiesParser;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -31,25 +32,29 @@ public class PropertiesParser2Impl implements PropertiesParser {
      * @return line objects list
      */
     public List<Object> parseLineToObjectsList(String propertyLine) {
+        if(propertyLine.contains(" ")) {
+            throw new ParseException("String " + propertyLine + " contains space character");
+        }
         List<Object> objects = new ArrayList<Object>();
-        List<Record> records = buildObjectsByContent(propertyLine, 0);
+        List<Record> records = buildObjectsByContent(propertyLine, 0, propertyLine.length());
         for(Record record : records) {
             objects.add(buildObject(record));
         }
         return objects;
     }
 
-    public List<Record> buildObjectsByContent(String content, int idx) {
+    public List<Record> buildObjectsByContent(String content, int start, int end) {
         List<Record> objects = new ArrayList<Record>();
-        while (idx < content.length()) {
-            Record record = getInstance(content, idx);
+        while (start < end) {
+            Record record = getInstance(content, start, end);
             objects.add(record);
-            idx += record.getLength();
+            start += record.getLength();
+            start++; // skip comma
         }
         return objects;
     }
 
-    public Record getInstance(String content, int idx) {
+    public Record getInstance(String content, int idx, int end) {
         Record record;
         if ((record = createField(content, idx)) != null) {
             return record;
@@ -69,16 +74,22 @@ public class PropertiesParser2Impl implements PropertiesParser {
     private Record createValue(String content, int idx) {
         int classDelimIdx = getClassDelimIdx(content, idx);
         int rightParentesisIdx = getRightParenthesisIdx(content, idx);
-        int valueDelimIdx = getValueDelimIdx(content, idx);
+
         if (classDelimIdx < 0) {
             if(rightParentesisIdx < 0) {
                 classDelimIdx = content.length();
             } else {
                 classDelimIdx = rightParentesisIdx;
             }
+        } else if(rightParentesisIdx < classDelimIdx) {
+            classDelimIdx = rightParentesisIdx;
         }
 
-        return new ValueRecord(content.substring(idx, classDelimIdx));//content.substring(idx, getClassDelimIdx(content, idx));
+        String contValue = content.substring(idx, classDelimIdx);
+        if(contValue.isEmpty()) { // empty content value
+            return null;
+        }
+        return new ValueRecord(contValue);
     }
 
     private boolean isSet(String content, int idx) {
@@ -96,8 +107,10 @@ public class PropertiesParser2Impl implements PropertiesParser {
             return null;
         }
         String fieldName = content.substring(idx, valueDelimIdx);
-        Record fieldValue = getInstance(content, fieldName.length() + idx + 1);
-        FieldRecord fieldRecord = new FieldRecord(fieldName, fieldValue);
+        Record fieldValue = getInstance(content, fieldName.length() + idx + 1, content.length());
+        int contLen = fieldName.length() + fieldValue.getLength() + 1; // 1 - value delim
+        String contVal = content.substring(idx, idx + contLen);
+        FieldRecord fieldRecord = new FieldRecord(fieldName, fieldValue, contVal);
 
         return fieldRecord;
     }
@@ -110,11 +123,62 @@ public class PropertiesParser2Impl implements PropertiesParser {
         String className = content.substring(idx, leftParIdx);
         List<Record> classValue = new ArrayList<Record>();
         if (!isEmptyClassContent(content, idx + className.length())) {
-            classValue = buildObjectsByContent(content, className.length() + idx + 1);
+            String classCont = getClassContent(content, idx + className.length()); // 1 - left parantesis
+            int start = idx + className.length() + 1; // 1 - left parentesis
+            int end = start + classCont.length(); // without right parentesis
+            classValue = buildObjectsByContent(content, start, end);
         }
-        ClassRecord classRecord = new ClassRecord(className, classValue);
+        String classContent = content.substring(idx, idx + className.length() + getElementsContLength(classValue) + 2); // 2 - parenteses
+        ClassRecord classRecord = new ClassRecord(className, classValue, classContent);
 
         return classRecord;
+    }
+
+    /**
+     * Get content with outer parenteses
+     * @param str
+     * @param idx
+     * @return content string
+     */
+    private String getClassContent(String str, int idx) {
+        StringBuffer content = new StringBuffer();
+        LinkedList<Character> bracketsStack = new LinkedList<Character>();
+        Character leftBr = conf.getLeftBracket();
+        Character rightBr = conf.getRightBracket();
+        for(int i = idx; i < str.length(); i++) {
+            char currChar = str.charAt(i);
+            if(currChar == conf.getLeftBracket()) {
+                bracketsStack.push(currChar);
+            } else if(currChar == rightBr && leftBr.equals(bracketsStack.peek())) {
+                bracketsStack.pop();
+                if(bracketsStack.isEmpty()) {
+                    content.append(rightBr);
+                    removeOuterChars(content);
+                    return content.toString();
+                }
+            }
+            if(i != str.length() - 1) { // is not parentesis last char
+                content.append(currChar);
+            }
+        }
+        removeOuterChars(content);
+        return content.toString();
+    }
+
+    private void removeOuterChars(StringBuffer str) {
+        str.deleteCharAt(0);
+        str.deleteCharAt(str.length() - 1);
+    }
+
+    private int getElementsContLength(List<Record> classValue) {
+        int contLen = 0;
+        for(Record rec : classValue) {
+            contLen += rec.getLength();
+        }
+        if(contLen != 0) {
+            contLen += classValue.size() - 1; // comas count
+        }
+        return contLen;
     }
 
     private boolean isEmptyClassContent(String content, int idx) {
@@ -150,10 +214,9 @@ public class PropertiesParser2Impl implements PropertiesParser {
     }
 
     private boolean isIdentifier(String str, int start, int end) {
-        if (end < 0) {
-            return false;
+        if (end < 0) {                               return false;
         }
-        String wrongIdentifierSymbols = "`~!@#$%^&*()-_=+/|\\\"\'№;:?<>{}[],.";
+        String wrongIdentifierSymbols = "`~!@#$%^&*()-_=+/|\\\"\'№;:?<>{}[],. ";
         boolean res = true;
         for (char ch : str.substring(start, end).toCharArray()) {
             if (wrongIdentifierSymbols.contains(String.valueOf(ch))) {
