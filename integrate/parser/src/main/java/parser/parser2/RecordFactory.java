@@ -16,7 +16,7 @@ package parser.parser2;
 //        List<Object> objects = new ArrayList<Object>();
 //        while (idx < content.length()) {
 //            Record record = getInstance(content, idx);
-//            objects.add(buildObject(record));
+//            objects.add(instanceObject(record));
 //            idx += record.getLength();
 //        }
 //        return objects;
@@ -148,7 +148,7 @@ package parser.parser2;
 //     * @param content
 //     * @return
 //     */
-//    private Object buildObject(Record content) {
+//    private Object instanceObject(Record content) {
 //        return null;
 //    }
 //}

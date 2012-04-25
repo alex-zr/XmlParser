@@ -2,8 +2,7 @@ package parser.types;
 
 import parser.common.ParseException;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.Field;
 
 /**
  * Created by IntelliJ IDEA.
@@ -12,17 +11,14 @@ import java.lang.reflect.Method;
  */
 public class IntType extends Type {
     @Override
-    public void setValue(Object obj, String name, String value) {
-        String setterName = "set" + capitalizeFirst(name);
+    public void setValue(Object obj, Field field, String value) {
         try {
-            Method method = obj.getClass().getMethod(setterName, int.class);
-            method.invoke(obj, Integer.parseInt(value));
-        } catch (NoSuchMethodException e) {
-            throw new ParseException("Method " + setterName + " not found", e);
-        } catch (InvocationTargetException e) {
-            throw new ParseException(e);
-        } catch (IllegalAccessException e) {
-            throw new ParseException(e);
+            field.setAccessible(true);
+            field.setInt(obj, Integer.parseInt(value));
+        } /*catch (NoSuchFieldException e) {
+            throw new ParseException("No such field found " + field.getName(), e);
+        }*/ catch (IllegalAccessException e) {
+            throw new ParseException("Can't set field value " + value + " for field " + field.getName(), e);
         }
     }
 }

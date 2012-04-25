@@ -50,4 +50,18 @@ public class ClassRecord extends Record {
     public String getContent() {
         return content;
     }
+
+//    @Override
+//    public Object instance() {
+//        public Object instantiateObj() throws IllegalAccessException, InstantiationException {
+//            for(Class clazz : classes) {
+//                if(clazz.getName().contains(className)) {
+//                    Object obj = clazz.newInstance();
+//                    fillBySimpleContent(obj, content);
+//                    return obj;
+//                }
+//            }
+//            throw new InstantiationException("Can't find " + className + " class");
+//        }
+//    }
 }

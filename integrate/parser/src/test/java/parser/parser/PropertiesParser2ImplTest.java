@@ -3,10 +3,7 @@ package parser.parser;
 import org.junit.Before;
 import org.junit.Test;
 import parser.configuration.Config;
-import parser.parser2.ClassRecord;
-import parser.parser2.FieldRecord;
-import parser.parser2.PropertiesParser2Impl;
-import parser.parser2.Record;
+import parser.parser2.*;
 
 import java.util.List;
 
@@ -23,15 +20,17 @@ public class PropertiesParser2ImplTest {
 
     private Config mockConfig;
     private PropertiesParser2Impl factory;
+    private Instantiator inst;
 
     @Before
     public void startUp() {
         mockConfig = getMockConfig();
+        inst = new Instantiator(null);
     }
 
     @Test
     public void testBuildClass() {
-        factory = new PropertiesParser2Impl(mockConfig);
+        factory = new PropertiesParser2Impl(mockConfig, inst);
         String content = "A()";
         List<Record> records = factory.buildObjectsByContent(content, 0, content.length());
         assertEquals(1, records.size());
@@ -41,7 +40,7 @@ public class PropertiesParser2ImplTest {
 
     @Test
     public void testBuildTwoClasses() {
-        factory = new PropertiesParser2Impl(mockConfig);
+        factory = new PropertiesParser2Impl(mockConfig, inst);
         String content = "A(),A()";
         List<Record> records = factory.buildObjectsByContent(content, 0, content.length());
         assertEquals(2, records.size());
@@ -54,7 +53,7 @@ public class PropertiesParser2ImplTest {
 
     @Test
     public void testCreateField() {
-        factory = new PropertiesParser2Impl(mockConfig);
+        factory = new PropertiesParser2Impl(mockConfig, inst);
         String content = "opa:opapa";
         List<Record> records = factory.buildObjectsByContent(content, 0, content.length());
         assertEquals("opa", records.get(0).getName());
@@ -71,7 +70,7 @@ public class PropertiesParser2ImplTest {
 
     @Test
     public void testCreateClassWithField() {
-        factory = new PropertiesParser2Impl(mockConfig);
+        factory = new PropertiesParser2Impl(mockConfig, inst);
         String content = "A(opa:opapa)";
         List<Record> records =  factory.buildObjectsByContent(content, 0, content.length());
         ClassRecord record = (ClassRecord)records.get(0);
@@ -83,7 +82,7 @@ public class PropertiesParser2ImplTest {
 
     @Test
     public void testCreateClassWithClass() {
-        factory = new PropertiesParser2Impl(mockConfig);
+        factory = new PropertiesParser2Impl(mockConfig, inst);
         String content = "A(opa:A())";
         List<Record> records = factory.buildObjectsByContent(content, 0, content.length());
         ClassRecord record = (ClassRecord)records.get(0);
@@ -98,7 +97,7 @@ public class PropertiesParser2ImplTest {
 
     @Test
     public void testCreateClassWith2Classes() {
-        factory = new PropertiesParser2Impl(mockConfig);
+        factory = new PropertiesParser2Impl(mockConfig, inst);
         String content = "A(opa:A(),ops:B())";
         List<Record> records = factory.buildObjectsByContent(content, 0, content.length());
         ClassRecord record1 = (ClassRecord)records.get(0);
@@ -114,7 +113,7 @@ public class PropertiesParser2ImplTest {
 
     @Test
     public void testCreateClassWithClassAndField() {
-        factory = new PropertiesParser2Impl(mockConfig);
+        factory = new PropertiesParser2Impl(mockConfig, inst);
         String content = "A(opa:A(opa:opapa))";
         List<Record> records = factory.buildObjectsByContent(content, 0, content.length());
         ClassRecord record = (ClassRecord)records.get(0);
@@ -130,7 +129,7 @@ public class PropertiesParser2ImplTest {
 
     @Test
     public void testCreateClassWithClassAnd2Fields() {
-        factory = new PropertiesParser2Impl(mockConfig);
+        factory = new PropertiesParser2Impl(mockConfig, inst);
         String content = "A(opa:A(opa:opapa,oplya:oplyaplya))";
         List<Record> records = factory.buildObjectsByContent(content, 0, content.length());
         ClassRecord record = (ClassRecord)records.get(0);
@@ -149,7 +148,7 @@ public class PropertiesParser2ImplTest {
 
     @Test
     public void testCreate2ClassesWithClassAnd2Fields() {
-        factory = new PropertiesParser2Impl(mockConfig);
+        factory = new PropertiesParser2Impl(mockConfig, inst);
         String content = "A(opa:A(opa:opapa,oplya:oplyaplya),op:B(op:opap,opl:oplyapl))";
         List<Record> records = factory.buildObjectsByContent(content, 0, content.length());
         ClassRecord record = (ClassRecord)records.get(0);

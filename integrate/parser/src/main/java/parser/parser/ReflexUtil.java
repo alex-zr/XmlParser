@@ -106,7 +106,7 @@ public class ReflexUtil {
             try {
                 Field field = obj.getClass().getDeclaredField(fieldName);
                 Type fieldType = TypeFactory.getType(field.getType().getName());
-                fieldType.setValue(obj, fieldName, value);
+                fieldType.setValue(obj, field, value);
 //                if(fieldType.getName().contains("boolean")) {
 //                    field.setBoolean(obj, Boolean.parseBoolean(value));
 //                } else if(fieldType.getName().contains("int")) {

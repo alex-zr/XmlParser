@@ -2,8 +2,7 @@ package parser.types;
 
 import parser.common.ParseException;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.Field;
 
 /**
  * Created by IntelliJ IDEA.
@@ -13,15 +12,10 @@ import java.lang.reflect.Method;
 public class StringType extends Type {
 
     @Override
-    public void setValue(Object obj, String name, String value) {
-        String setterName = "set" + capitalizeFirst(name);
+    public void setValue(Object obj, Field field, String value) {
         try {
-            Method method = obj.getClass().getMethod(setterName, String.class);
-            method.invoke(obj, value);
-        } catch (NoSuchMethodException e) {
-            throw new ParseException("Method " + setterName + "(String) not found in class " + obj.getClass().getName() , e);
-        } catch (InvocationTargetException e) {
-            throw new ParseException(e);
+            field.setAccessible(true);
+            field.set(obj, value);
         } catch (IllegalAccessException e) {
             throw new ParseException(e);
         }

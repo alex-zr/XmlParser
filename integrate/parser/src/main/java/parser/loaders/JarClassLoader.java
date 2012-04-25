@@ -6,9 +6,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -20,6 +18,8 @@ import java.util.zip.ZipFile;
 public class JarClassLoader {
     private final ZipFile file;
     private static String CLASS_EXTENSION = ".class";
+    private static String SLASH = "/";
+    private static final String DOT = ".";
 
     public JarClassLoader(String filename) {
         if(filename == null) {
@@ -33,6 +33,7 @@ public class JarClassLoader {
         }
     }
 
+    @Deprecated
     public List<Class> getClasses() {
         List<Class> classes = new ArrayList<Class>();
         try {
@@ -52,6 +53,26 @@ public class JarClassLoader {
         return classes;
     }
 
+    public Map<String, Class> getClassesMap() {
+        Map<String, Class> classesMap = new HashMap<String, Class>();
+        try {
+            URL[] urls = {new URL("jar:file:" + file.getName() + "!/")};
+            URLClassLoader urlClassLoader = URLClassLoader.newInstance(urls);
+            List<String> classNamesFromJar = getClassNamesFromJar();
+            for (String name : classNamesFromJar) {
+                String className = classPathToClassName(name);
+                Class<?> aClass = urlClassLoader.loadClass(className);
+                classesMap.put(classNameToSimpleName(name), aClass);
+            }
+        } catch (MalformedURLException e) {
+            throw new LogicException("Wrong file name [" +file.getName()+ "]", e);
+        } catch (ClassNotFoundException e) {
+            throw new LogicException("There is no file in Jar", e);
+        }
+
+        return classesMap;
+    }
+
     private static String classPathToClassName(String entry) {
         String name = entry.replace(CLASS_EXTENSION, "");
         return name.replace("/", ".");
@@ -67,5 +88,17 @@ public class JarClassLoader {
             }
         }
         return names;
+    }
+
+    private String classNameToSimpleName(String name) {
+        int start = 0;
+
+        if(name.contains(SLASH)) {
+            start = name.lastIndexOf(SLASH) + 1;
+        }
+        if(!name.contains(DOT)) {
+            throw new IllegalArgumentException("class name should contains .class");
+        }
+        return name.substring(start, name.lastIndexOf(DOT));
     }
 }
