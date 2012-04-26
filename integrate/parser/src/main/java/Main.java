@@ -1,12 +1,8 @@
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import parser.configuration.Config;
-import parser.loaders.JarClassLoader;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import parser.configuration.ContextConfiguration;
 import parser.loaders.PropertiesFilesLoader;
-import parser.parser.PropertiesParser;
-import parser.parser.ReflexUtil;
-import parser.parser2.Instantiator;
-import parser.parser2.PropertiesParser2Impl;
 import parser.writer.ModelXmlWriter;
 
 import java.util.List;
@@ -20,23 +16,33 @@ import java.util.Set;
  */
 public class Main {
     final static Logger logger = LoggerFactory.getLogger(Main.class);
-    private JarClassLoader classLoader;
-    private Instantiator inst;
+//    private Config config;
+//    private JarClassLoader classLoader;
+//    private ReflexUtil util;
+//    private Instantiator inst;
     private PropertiesFilesLoader prLoader;
-    private Config config;
-    private PropertiesParser parser;
+//    private PropertiesParser parser;
     private ModelXmlWriter writer;
-    private ReflexUtil util;
 
     private void init() {
-        config = new Config();
-        config.load();
-        classLoader = new JarClassLoader(config.getJarPath());
-        util = new ReflexUtil(config);
-        inst = new Instantiator(classLoader.getClassesMap());
-        parser = new PropertiesParser2Impl(config, inst);
-        prLoader = new PropertiesFilesLoader(parser, config);
-        writer = new ModelXmlWriter(config.getOutput());
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
+                ContextConfiguration.class);
+//        config = (Config) context.getBean("config");
+//        classLoader = (JarClassLoader) context.getBean("classLoader");
+//        util = (ReflexUtil) context.getBean("ReflexUtil");
+//        inst = (Instantiator) context.getBean("inst");
+//        parser = (PropertiesParser) context.getBean("parser");
+        prLoader = (PropertiesFilesLoader) context.getBean("loader");
+        writer = (ModelXmlWriter) context.getBean("writer");
+
+//        config = new Config();
+//        config.load();
+//        classLoader = new JarClassLoader(config.getJarPath());
+//        util = new ReflexUtil(config);
+//        inst = new Instantiator(classLoader.getClassesMap());
+//        parser = new PropertiesParser2Impl(config, inst);
+//        prLoader = new PropertiesFilesLoader(parser, config);
+//        writer = new ModelXmlWriter(config.getOutput());
     }
 
     public static void main(String[] args) {

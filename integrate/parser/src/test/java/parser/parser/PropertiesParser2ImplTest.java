@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
 public class PropertiesParser2ImplTest {
 
     private Config mockConfig;
-    private PropertiesParser2Impl factory;
+    private PropertiesParser2Impl parser;
     private Instantiator inst;
 
     @Before
@@ -30,9 +30,9 @@ public class PropertiesParser2ImplTest {
 
     @Test
     public void testBuildClass() {
-        factory = new PropertiesParser2Impl(mockConfig, inst);
+        parser = new PropertiesParser2Impl(mockConfig, inst);
         String content = "A()";
-        List<Record> records = factory.buildObjectsByContent(content, 0, content.length());
+        List<Record> records = parser.buildObjectsByContent(content, 0, content.length());
         assertEquals(1, records.size());
         assertEquals(3, records.get(0).getLength());
         assertEquals("A", records.get(0).getName());
@@ -40,9 +40,9 @@ public class PropertiesParser2ImplTest {
 
     @Test
     public void testBuildTwoClasses() {
-        factory = new PropertiesParser2Impl(mockConfig, inst);
+        parser = new PropertiesParser2Impl(mockConfig, inst);
         String content = "A(),A()";
-        List<Record> records = factory.buildObjectsByContent(content, 0, content.length());
+        List<Record> records = parser.buildObjectsByContent(content, 0, content.length());
         assertEquals(2, records.size());
         assertEquals("A", records.get(0).getName());
         assertEquals("A", records.get(1).getName());
@@ -53,26 +53,26 @@ public class PropertiesParser2ImplTest {
 
     @Test
     public void testCreateField() {
-        factory = new PropertiesParser2Impl(mockConfig, inst);
+        parser = new PropertiesParser2Impl(mockConfig, inst);
         String content = "opa:opapa";
-        List<Record> records = factory.buildObjectsByContent(content, 0, content.length());
+        List<Record> records = parser.buildObjectsByContent(content, 0, content.length());
         assertEquals("opa", records.get(0).getName());
         assertEquals("opapa", records.get(0).getValue().getContent());
     }
 
 //    @Test
 //    public void testCreateClass() {
-//        factory = new PropertiesParser2Impl(mockConfig);
-//        Record record = factory.getInstance("A()", 0);
+//        parser = new PropertiesParser2Impl(mockConfig);
+//        Record record = parser.getInstance("A()", 0);
 //        assertEquals("A", record.getName());
 //        assertEquals("", record.getValue().getContent());
 //    }
 
     @Test
     public void testCreateClassWithField() {
-        factory = new PropertiesParser2Impl(mockConfig, inst);
+        parser = new PropertiesParser2Impl(mockConfig, inst);
         String content = "A(opa:opapa)";
-        List<Record> records =  factory.buildObjectsByContent(content, 0, content.length());
+        List<Record> records =  parser.buildObjectsByContent(content, 0, content.length());
         ClassRecord record = (ClassRecord)records.get(0);
         assertEquals("A", record.getName());
         assertEquals("opa", record.getValues().get(0).getName());
@@ -82,9 +82,9 @@ public class PropertiesParser2ImplTest {
 
     @Test
     public void testCreateClassWithClass() {
-        factory = new PropertiesParser2Impl(mockConfig, inst);
+        parser = new PropertiesParser2Impl(mockConfig, inst);
         String content = "A(opa:A())";
-        List<Record> records = factory.buildObjectsByContent(content, 0, content.length());
+        List<Record> records = parser.buildObjectsByContent(content, 0, content.length());
         ClassRecord record = (ClassRecord)records.get(0);
         assertEquals("A", record.getName());
         FieldRecord record1 = (FieldRecord)record.getValues().get(0);
@@ -97,9 +97,9 @@ public class PropertiesParser2ImplTest {
 
     @Test
     public void testCreateClassWith2Classes() {
-        factory = new PropertiesParser2Impl(mockConfig, inst);
+        parser = new PropertiesParser2Impl(mockConfig, inst);
         String content = "A(opa:A(),ops:B())";
-        List<Record> records = factory.buildObjectsByContent(content, 0, content.length());
+        List<Record> records = parser.buildObjectsByContent(content, 0, content.length());
         ClassRecord record1 = (ClassRecord)records.get(0);
         assertEquals("A", record1.getName());
         FieldRecord record11 = (FieldRecord)record1.getValues().get(0);
@@ -113,9 +113,9 @@ public class PropertiesParser2ImplTest {
 
     @Test
     public void testCreateClassWithClassAndField() {
-        factory = new PropertiesParser2Impl(mockConfig, inst);
+        parser = new PropertiesParser2Impl(mockConfig, inst);
         String content = "A(opa:A(opa:opapa))";
-        List<Record> records = factory.buildObjectsByContent(content, 0, content.length());
+        List<Record> records = parser.buildObjectsByContent(content, 0, content.length());
         ClassRecord record = (ClassRecord)records.get(0);
         assertEquals("A", record.getName());
         FieldRecord record1 = (FieldRecord)record.getValues().get(0);
@@ -129,9 +129,9 @@ public class PropertiesParser2ImplTest {
 
     @Test
     public void testCreateClassWithClassAnd2Fields() {
-        factory = new PropertiesParser2Impl(mockConfig, inst);
+        parser = new PropertiesParser2Impl(mockConfig, inst);
         String content = "A(opa:A(opa:opapa,oplya:oplyaplya))";
-        List<Record> records = factory.buildObjectsByContent(content, 0, content.length());
+        List<Record> records = parser.buildObjectsByContent(content, 0, content.length());
         ClassRecord record = (ClassRecord)records.get(0);
         assertEquals("A", record.getName());
         FieldRecord record1 = (FieldRecord)record.getValues().get(0);
@@ -148,9 +148,9 @@ public class PropertiesParser2ImplTest {
 
     @Test
     public void testCreate2ClassesWithClassAnd2Fields() {
-        factory = new PropertiesParser2Impl(mockConfig, inst);
+        parser = new PropertiesParser2Impl(mockConfig, inst);
         String content = "A(opa:A(opa:opapa,oplya:oplyaplya),op:B(op:opap,opl:oplyapl))";
-        List<Record> records = factory.buildObjectsByContent(content, 0, content.length());
+        List<Record> records = parser.buildObjectsByContent(content, 0, content.length());
         ClassRecord record = (ClassRecord)records.get(0);
         assertEquals("A", record.getName());
 

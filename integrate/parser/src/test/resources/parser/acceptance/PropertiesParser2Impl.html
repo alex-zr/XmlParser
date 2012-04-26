@@ -1,0 +1,171 @@
+<html xmlns:concordion="http://www.concordion.org/2007/concordion">
+<head>
+    <STYLE type="text/css">
+        .test {
+        padding: 2px 12px 6px 12px;
+        border: 1px solid #C3D9FF;
+        margin: 6px 0px 28px 0px;
+        background-color: #F5F9FD;
+        }
+    </STYLE>
+</head>
+<body>
+<h1>Xml parser</h1>
+
+<p>
+    Test of the properties file parse to the transitional object model
+</p>
+
+<div class="test">
+    <h3>PropertiesParser2ImplTest</h3>
+
+    This test various cases of parsing string line
+
+    <table>
+
+        <tr>
+            <th>Test number #</th>
+            <th>Test description</th>
+            <th>Parse string</th>
+            <th>Parse result</th>
+        </tr>
+
+        <!-- Test #1 -->
+        <tr>
+            <td>1</td>
+            <td>Positive test, parse empty class</td>
+
+            <td>
+                <span concordion:execute="startUp()"/>
+                <span concordion:set="#parseString">A()</span> <br/>
+            </td>
+
+            <td>
+                <table concordion:verifyRows="#record : parse(#parseString)">
+                    <tr>
+                        <th concordion:assertEquals="#record.length">Character numbers</th>
+                        <th concordion:assertEquals="#record.name">Name</th>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>A</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+        <!-- Test #2 -->
+        <tr>
+            <td>2</td>
+            <td>Positive test, parse two empty classes</td>
+
+            <td>
+                <span concordion:execute="startUp()"/>
+                <span concordion:set="#parseString">A(),A()</span> <br/>
+            </td>
+
+            <td>
+                <table concordion:verifyRows="#record : parse(#parseString)">
+                    <tr>
+                        <th concordion:assertEquals="#record.length">Character numbers</th>
+                        <th concordion:assertEquals="#record.name">Name</th>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>A</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>A</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+        <!-- Test #3 -->
+        <tr>
+            <td>3</td>
+            <td>Positive test, parse field</td>
+
+            <td>
+                <span concordion:execute="startUp()"/>
+                <span concordion:set="#parseString">name:value</span> <br/>
+            </td>
+
+            <td>
+                <table concordion:verifyRows="#record : parse(#parseString)">
+                    <tr>
+                        <th concordion:assertEquals="#record.length">Character numbers</th>
+                        <th concordion:assertEquals="#record.name">Property name</th>
+                        <th concordion:assertEquals="#record.value.content">Property value</th>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td>name</td>
+                        <td>value</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+        <!-- Test #4 -->
+        <tr>
+            <td>4</td>
+            <td>Positive test, create class with field</td>
+
+            <td>
+                <span concordion:execute="startUp()"/>
+                <span concordion:set="#parseString">A(name:value)</span> <br/>
+            </td>
+            <td>
+                <table>
+                    <th>Class name</th>
+                    <th>Field name</th>
+                    <th>Field value</th>
+                    <span concordion:execute="#records = parse(#parseString)"/>
+                    <span concordion:execute="#classRec = getFirst(#records)"/>
+                    <span concordion:execute="#values = getValues(#classRec)"/>
+                    <span concordion:execute="#fieldRec = getFirst(#values)"/>
+                    <tr>
+                        <td concordion:assertEquals="#classRec.name">A</td>
+                        <td concordion:assertEquals="#fieldRec.name">name</td>
+                        <td concordion:assertEquals="#fieldRec.value">value</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+        <!-- Test #5 -->
+        <tr>
+            <td>5</td>
+            <td>Positive test, create class with class</td>
+
+            <td>
+                <span concordion:execute="startUp()"/>
+                <span concordion:set="#parseString">A(name:A())</span> <br/>
+            </td>
+            <td>
+                <table>
+                    <th>Class name</th>
+                    <th>Field name</th>
+                    <th>Sub class name</th>
+                    <th>Sub class content</th>
+                    <span concordion:execute="#records = parse(#parseString)"/>
+                    <span concordion:execute="#classRec = getFirst(#records)"/>
+                    <span concordion:execute="#values = getValues(#classRec)"/>
+                    <span concordion:execute="#fieldRec = getFirst(#values)"/>
+                    <tr>
+                        <td concordion:assertEquals="#classRec.name">A</td>
+                        <td concordion:assertEquals="#fieldRec.name">name</td>
+                        <td concordion:assertEquals="#fieldRec.value.name">A</td>
+                        <td concordion:assertEquals="#fieldRec.value.value">(null)</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+    </table>
+</div>
+
+</body>
+</html>
