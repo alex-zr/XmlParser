@@ -4,8 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import parser.common.ParseException;
 import parser.configuration.Config;
+import parser.types.ObjectByTypeFactory;
 import parser.types.Type;
-import parser.types.TypeFactory;
 
 import java.lang.reflect.Field;
 import java.util.LinkedList;
@@ -105,7 +105,7 @@ public class ReflexUtil {
             String value = fieldStr.substring(valueDelimIdx + 1); //skip value delimiter
             try {
                 Field field = obj.getClass().getDeclaredField(fieldName);
-                Type fieldType = TypeFactory.getType(field.getType().getName());
+                Type fieldType = ObjectByTypeFactory.getType(field.getType().getName());
                 fieldType.setValue(obj, field, value);
 //                if(fieldType.getName().contains("boolean")) {
 //                    field.setBoolean(obj, Boolean.parseBoolean(value));

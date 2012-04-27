@@ -1,6 +1,9 @@
 package parser.parser;
 
 import org.junit.Test;
+import parser.parser.model.Address;
+import parser.parser.model.Group;
+import parser.parser.model.Student;
 import parser.parser2.*;
 
 import java.lang.reflect.Field;
@@ -11,6 +14,7 @@ import java.util.Map;
 import java.util.logging.FileHandler;
 
 import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by IntelliJ IDEA.
@@ -27,6 +31,22 @@ public class InstantiatorTest {
         Record record = new ClassRecord("String", new ArrayList<Record>());
         Object object = inst.instanceObject(record, null);
         assertEquals(object.getClass().getSimpleName(), "String");
+    }
+
+    @Test
+    public void testClassAsField() throws IllegalAccessException, InstantiationException, NoSuchFieldException {
+        inst = new Instantiator(getClassesMap());
+        String value = "";
+        String fieldName = "group";
+        ClassRecord record = new ClassRecord("Student", new ArrayList<Record>());
+        FieldRecord fRec = new FieldRecord(fieldName, new ClassRecord("Group", new ArrayList<Record>()));
+        record.getValues().add(fRec);
+        Object object = inst.instanceObject(record, null);
+        assertEquals(object.getClass().getSimpleName(), "Student");
+        Field field = object.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        Group group = (Group) field.get(object);
+        assertNotNull(group);
     }
 
     @Test
@@ -145,6 +165,9 @@ public class InstantiatorTest {
         map.put("String", String.class);
         map.put("Throwable", Throwable.class);
         map.put("FileHandler", FileHandler.class);
+        map.put("Student", Student.class);
+        map.put("Group", Group.class);
+        map.put("Address", Address.class);
 
         return map;
     }

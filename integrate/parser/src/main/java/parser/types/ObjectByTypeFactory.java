@@ -7,7 +7,7 @@ import parser.common.ParseException;
  * User: al1
  * Date: 19.03.12
  */
-public class TypeFactory {
+public class ObjectByTypeFactory {
     private static final String STRING_TYPE = "String";
     private static final String INT_TYPE = "int";
 
@@ -18,5 +18,15 @@ public class TypeFactory {
             return new IntType();
         }
         throw new ParseException("No type found " + name);
+    }
+
+    public static Object getValue(String name, String content) {
+        if(name.equals(INT_TYPE)) {
+            IntType iType = new IntType();
+            return iType.getValue(content);
+        } else if(name.contains(STRING_TYPE)) {
+            return content;
+        }
+        return null;
     }
 }

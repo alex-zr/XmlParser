@@ -21,4 +21,8 @@ public class IntType extends Type {
             throw new ParseException("Can't set field value " + value + " for field " + field.getName(), e);
         }
     }
+
+    public Integer getValue(String value) {
+        return Integer.parseInt(value);
+    }
 }

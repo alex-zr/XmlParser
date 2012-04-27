@@ -1,2 +1,3 @@
 1. Same name of classes in different packages is not supported yet (all model classes should placed in one package).
 2. Don't support instantiation of model object by non default constructors.
+3. Support only int and String "primitive" field types

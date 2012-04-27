@@ -1,8 +1,8 @@
 package parser.parser2;
 
+import parser.common.LogicException;
 import parser.common.ParseException;
-import parser.types.Type;
-import parser.types.TypeFactory;
+import parser.types.ObjectByTypeFactory;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -31,16 +31,19 @@ public class Instantiator {
             String fieldName = record.getName();
             try {
                 Field field = object.getClass().getDeclaredField(fieldName);
-                Type fieldType = TypeFactory.getType(field.getType().getName());
-                fieldType.setValue(object, field, record.getValue().getContent());
+                Object valueObj = instanceObject(record.getValue(), field);
+                field.setAccessible(true);
+                field.set(object, valueObj);
+//                Type fieldType = ObjectByTypeFactory.getType(field.getType().getName());
+//                fieldType.setValue(object, field, record.getValue().getContent());
             } catch (NoSuchFieldException e) {
-                throw new ParseException("Field " + fieldName + " not found", e);
+                throw new ParseException("Field " + fieldName + " not found in class " + object.getClass().getSimpleName(), e);
             }
-        }  else if (record instanceof ListRecord) {
-            ListRecord listRecord = (ListRecord)record;
+        } else if (record instanceof ListRecord) {
+            ListRecord listRecord = (ListRecord) record;
             ArrayList list = new ArrayList();
-            for(Record rec : listRecord.getValues()) {
-                if(rec instanceof ClassRecord) { // include list and set
+            for (Record rec : listRecord.getValues()) {
+                if (rec instanceof ClassRecord) { // include list and set
                     list.add(instanceObject(rec, null));
                 } else {
                     throw new ParseException("List contains the illegal element " + rec.getName());
@@ -53,8 +56,8 @@ public class Instantiator {
             Class clazz = classesMap.get(record.getName());
             if (clazz != null) {
                 Object obj = clazz.newInstance();
-                for(Record rec : ((ClassRecord) record).getValues()) {
-                    if(!(rec instanceof FieldRecord)) {
+                for (Record rec : ((ClassRecord) record).getValues()) {
+                    if (!(rec instanceof FieldRecord)) {
                         throw new ParseException("Class contains not a field " + rec.getName());
                     }
                     instanceObject(rec, obj);
@@ -62,9 +65,18 @@ public class Instantiator {
                 return obj;
             }
             throw new InstantiationException("Can't find " + record.getName() + " class");
-        } /*else if(record instanceof ValueRecord) {
-
-        }*/
+        } else if (record instanceof ValueRecord) {
+            ValueRecord valueRecord = (ValueRecord) record;
+            if(object instanceof Field) {
+                Field field = (Field) object;
+                Object value = ObjectByTypeFactory.getValue(field.getType().getName(), valueRecord.getContent());
+                return value;
+            }
+            throw new LogicException("Type of value " + valueRecord.getContent() + " should be Field");
+//            Type fieldType = ObjectByTypeFactory.getType(valueRecord.getName());
+//            fieldType.setValue(object, field, record.getValue().getContent());
+//            return instanceObject(valueRecord.getValue(), object);
+        }
         return object;
         //throw new ParseException("Unknown record " + record);
 
