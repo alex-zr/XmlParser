@@ -15,6 +15,7 @@ import java.util.List;
  * Date: 10.04.12
  */
 public class PropertiesParser2Impl implements PropertiesParser {
+    private static final String LIST_ID = "List";
     private Config conf;
     private Instantiator inst;
 
@@ -72,12 +73,12 @@ public class PropertiesParser2Impl implements PropertiesParser {
         Record record;
         if ((record = createField(content, idx)) != null) {
             return record;
+        } else if ((record = createList(content, idx)) != null) {
+            return record;
+        } else if ((record = createSet(content, idx)) != null) {
+            return record;
         } else if ((record = createClass(content, idx)) != null) {
             return record;
-        } else if (isList(content, idx)) {
-            return new ListRecord();
-        } else if (isSet(content, idx)) {
-            return new SetRecord();
         } else if ((record = createValue(content, idx)) != null) {
             return record;
         } else {
@@ -106,12 +107,29 @@ public class PropertiesParser2Impl implements PropertiesParser {
         return new ValueRecord(contValue);
     }
 
-    private boolean isSet(String content, int idx) {
-        return false;  //To change body of created methods use File | Settings | File Templates.
+    private Record createSet(String content, int idx) {
+        return null;
     }
 
-    private boolean isList(String content, int idx) {
-        return false;  //To change body of created methods use File | Settings | File Templates.
+    private Record createList(String content, int idx) {
+        int leftColParIdx = getLeftColParenthesisIdx(content, idx);
+        if (leftColParIdx < 0 || !content.substring(idx, leftColParIdx).equalsIgnoreCase(LIST_ID)) {
+            return null;
+        }
+        String listId = content.substring(idx, leftColParIdx);
+        List<Record> listContent = new ArrayList<Record>();
+        if (!isEmptyContent(content, idx + listId.length(), conf.getRightColBracket())) {
+            String listCont = getCollectionContent(content, idx + listId.length()); // 1 - left parentesis
+            int start = idx + listId.length() + 1; // 1 - left parentesis
+            int end = start + listCont.length(); // without right parentesis
+            listContent = buildObjectsByContent(content, start, end);
+        }
+        String listStrContent = content.substring(idx, idx + listId.length() + getElementsContLength(listContent) + 2); // 2 - parenteses
+        return new ListRecord(listId, listContent, listStrContent);
+    }
+
+    private int getLeftColParenthesisIdx(String str, int idx) {
+        return str.indexOf(String.valueOf(conf.getLeftColBracket()), idx);
     }
 
     private Record createField(String content, int idx) {
@@ -124,9 +142,7 @@ public class PropertiesParser2Impl implements PropertiesParser {
         Record fieldValue = getInstance(content, fieldName.length() + idx + 1, content.length());
         int contLen = fieldName.length() + fieldValue.getLength() + 1; // 1 - value delim
         String contVal = content.substring(idx, idx + contLen);
-        FieldRecord fieldRecord = new FieldRecord(fieldName, fieldValue, contVal);
-
-        return fieldRecord;
+        return new FieldRecord(fieldName, fieldValue, contVal);
     }
 
     private Record createClass(String content, int idx) {
@@ -136,18 +152,23 @@ public class PropertiesParser2Impl implements PropertiesParser {
         }
         String className = content.substring(idx, leftParIdx);
         List<Record> classValue = new ArrayList<Record>();
-        if (!isEmptyClassContent(content, idx + className.length())) {
+        if (!isEmptyContent(content, idx + className.length(), conf.getRightBracket())) {
             String classCont = getClassContent(content, idx + className.length()); // 1 - left parantesis
             int start = idx + className.length() + 1; // 1 - left parentesis
             int end = start + classCont.length(); // without right parentesis
             classValue = buildObjectsByContent(content, start, end);
         }
         String classContent = content.substring(idx, idx + className.length() + getElementsContLength(classValue) + 2); // 2 - parenteses
-        ClassRecord classRecord = new ClassRecord(className, classValue, classContent);
-
-        return classRecord;
+        return new ClassRecord(className, classValue, classContent);
     }
 
+    private String getClassContent(String str, int idx) {
+        return getContent(str, idx, conf.getLeftBracket(), conf.getRightBracket());
+    }
+
+    private String getCollectionContent(String str, int idx) {
+        return getContent(str, idx, conf.getLeftColBracket(), conf.getRightColBracket());
+    }
     /**
      * Get content with outer parenteses
      *
@@ -155,14 +176,12 @@ public class PropertiesParser2Impl implements PropertiesParser {
      * @param idx
      * @return content string
      */
-    private String getClassContent(String str, int idx) {
+    private String getContent(String str, int idx, Character leftBr, Character rightBr) {
         StringBuffer content = new StringBuffer();
         LinkedList<Character> bracketsStack = new LinkedList<Character>();
-        Character leftBr = conf.getLeftBracket();
-        Character rightBr = conf.getRightBracket();
         for (int i = idx; i < str.length(); i++) {
             char currChar = str.charAt(i);
-            if (currChar == conf.getLeftBracket()) {
+            if (currChar == leftBr) {
                 bracketsStack.push(currChar);
             } else if (currChar == rightBr && leftBr.equals(bracketsStack.peek())) {
                 bracketsStack.pop();
@@ -196,8 +215,8 @@ public class PropertiesParser2Impl implements PropertiesParser {
         return contLen;
     }
 
-    private boolean isEmptyClassContent(String content, int idx) {
-        return content.charAt(idx + 1) == conf.getRightBracket();
+    private boolean isEmptyContent(String content, int idx, char rBr) {
+        return content.charAt(idx + 1) == rBr;
     }
 
     private boolean hasParentheses(String str, int idx) {

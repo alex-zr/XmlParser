@@ -1,5 +1,7 @@
 package model;
 
+import java.util.List;
+
 /**
  * Created by IntelliJ IDEA.
  * User: al1
@@ -7,6 +9,7 @@ package model;
  */
 public class Group {
     private String name;
+    private List students;
 
     public Group() {
     }
@@ -23,6 +26,14 @@ public class Group {
         this.name = name;
     }
 
+    public List getStudents() {
+        return students;
+    }
+
+    public void setStudents(List students) {
+        this.students = students;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -31,19 +42,23 @@ public class Group {
         Group group = (Group) o;
 
         if (name != null ? !name.equals(group.name) : group.name != null) return false;
+        if (students != null ? !students.equals(group.students) : group.students != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return name != null ? name.hashCode() : 0;
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (students != null ? students.hashCode() : 0);
+        return result;
     }
 
     @Override
     public String toString() {
         return "Group{" +
                 "name='" + name + '\'' +
+                ", students=" + students +
                 '}';
     }
 }

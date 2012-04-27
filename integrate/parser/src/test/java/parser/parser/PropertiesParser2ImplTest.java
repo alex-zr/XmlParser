@@ -7,6 +7,7 @@ import parser.parser2.*;
 
 import java.util.List;
 
+import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -177,12 +178,110 @@ public class PropertiesParser2ImplTest {
         assertEquals("oplyapl", record41.getValue().getContent());
     }
 
+    @Test
+    public void testCreateEmptyList() {
+        parser = new PropertiesParser2Impl(mockConfig, inst);
+        String content = "List[]";
+        List<Record> records = parser.buildObjectsByContent(content, 0, content.length());
+        ListRecord record = (ListRecord)records.get(0);
+        assertEquals("List", record.getName());
+        assertEquals(6, record.getLength());
+        assertTrue(record.getValues().isEmpty());
+    }
+
+    @Test
+    public void testCreateTwoEmptyLists() {
+        parser = new PropertiesParser2Impl(mockConfig, inst);
+        String content = "List[],List[]";
+        List<Record> records = parser.buildObjectsByContent(content, 0, content.length());
+        ListRecord record1 = (ListRecord)records.get(0);
+        assertEquals("List", record1.getName());
+        assertEquals(6, record1.getLength());
+        assertTrue(record1.getValues().isEmpty());
+
+        ListRecord record2 = (ListRecord)records.get(0);
+        assertEquals("List", record2.getName());
+        assertEquals(6, record2.getLength());
+        assertTrue(record2.getValues().isEmpty());
+    }
+
+    @Test
+    public void testCreateListWithClass() {
+        parser = new PropertiesParser2Impl(mockConfig, inst);
+        String content = "List[A()]";
+        List<Record> records = parser.buildObjectsByContent(content, 0, content.length());
+        ListRecord listRecord = (ListRecord)records.get(0);
+        assertEquals("List", listRecord.getName());
+        assertEquals(9, listRecord.getLength());
+        assertEquals(1, listRecord.getValues().size());
+
+        ClassRecord classRecord = (ClassRecord)listRecord.getValues().get(0);
+        assertEquals("A", classRecord.getName());
+        assertEquals(3, classRecord.getLength());
+        assertTrue(classRecord.getValues().isEmpty());
+    }
+
+    @Test
+    public void testCreateListWithClassWithField() {
+        parser = new PropertiesParser2Impl(mockConfig, inst);
+        String classContent = "A(name:value)";
+        String listContent = "List[" + classContent + "]";
+        List<Record> records = parser.buildObjectsByContent(listContent, 0, listContent.length());
+        ListRecord listRecord = (ListRecord)records.get(0);
+        assertEquals("List", listRecord.getName());
+        assertEquals(listContent.length(), listRecord.getLength());
+        assertEquals(1, listRecord.getValues().size());
+
+        ClassRecord classRecord = (ClassRecord)listRecord.getValues().get(0);
+        assertEquals("A", classRecord.getName());
+        assertEquals(classContent.length(), classRecord.getLength());
+        assertEquals(1, classRecord.getValues().size());
+
+        FieldRecord fieldRecord = (FieldRecord)classRecord.getValues().get(0);
+        assertEquals("name", fieldRecord.getName());
+        assertEquals("value", fieldRecord.getValue().getContent());
+    }
+
+    @Test
+    public void testCreateListWith2ClassesWith2Fields() {
+        parser = new PropertiesParser2Impl(mockConfig, inst);
+        String classContent1 = "A(name1:value1)";
+        String classContent2 = "Class(name2:value2)";
+        String listContent = "List[" + classContent1 + "," + classContent2 + "]";
+        List<Record> records = parser.buildObjectsByContent(listContent, 0, listContent.length());
+
+        ListRecord listRecord = (ListRecord)records.get(0);
+        assertEquals("List", listRecord.getName());
+        assertEquals(listContent.length(), listRecord.getLength());
+        assertEquals(2, listRecord.getValues().size());
+
+        ClassRecord classRecord1 = (ClassRecord)listRecord.getValues().get(0);
+        assertEquals("A", classRecord1.getName());
+        assertEquals(classContent1.length(), classRecord1.getLength());
+        assertEquals(1, classRecord1.getValues().size());
+
+        FieldRecord fieldRecord1 = (FieldRecord)classRecord1.getValues().get(0);
+        assertEquals("name1", fieldRecord1.getName());
+        assertEquals("value1", fieldRecord1.getValue().getContent());
+
+        ClassRecord classRecord2 = (ClassRecord)listRecord.getValues().get(1);
+        assertEquals("Class", classRecord2.getName());
+        assertEquals(classContent2.length(), classRecord2.getLength());
+        assertEquals(1, classRecord2.getValues().size());
+
+        FieldRecord fieldRecord2 = (FieldRecord)classRecord2.getValues().get(0);
+        assertEquals("name2", fieldRecord2.getName());
+        assertEquals("value2", fieldRecord2.getValue().getContent());
+    }
+
     private Config getMockConfig() {
         Config mockedConfig = mock(Config.class);
         when(mockedConfig.getClassDelimiter()).thenReturn(',');
         when(mockedConfig.getValueDelimiter()).thenReturn(':');
         when(mockedConfig.getLeftBracket()).thenReturn('(');
         when(mockedConfig.getRightBracket()).thenReturn(')');
+        when(mockedConfig.getLeftColBracket()).thenReturn('[');
+        when(mockedConfig.getRightColBracket()).thenReturn(']');
 
         return mockedConfig;
     }

@@ -19,6 +19,8 @@ public class Config {
     private final String CLASS_DELIMITER_PARAM_NAME = "class.delimiter";
     private final String LEFT_BRACKET_PARAM_NAME = "left.bracket";
     private final String RIGHT_BRACKET_PARAM_NAME = "right.bracket";
+    private final String LEFT_COL_BRACKET_PARAM_NAME = "left.collection.bracket";
+    private final String RIGHT_COL_BRACKET_PARAM_NAME = "right.collection.bracket";
     private final String VALUE_DELIMITER_PARAM_NAME = "value.delimiter";
 
     private String input;
@@ -26,8 +28,10 @@ public class Config {
     private String jarPath;
     private char classDelimiter;
     private char leftBracket;
-    private char rightBracket;
     private char valueDelimiter;
+    private char rightBracket;
+    private char leftColBracket;
+    private char rightColBracket;
 
     private static boolean initiated = false;
 
@@ -43,8 +47,10 @@ public class Config {
             jarPath = prop.getProperty(MODEL_JAR_PARAM_NAME);
             String classDelimiterStr = prop.getProperty(CLASS_DELIMITER_PARAM_NAME);
             String leftBracketStr = prop.getProperty(LEFT_BRACKET_PARAM_NAME);
-            String rightBracketStr = prop.getProperty(RIGHT_BRACKET_PARAM_NAME);
             String valueDelimiterStr = prop.getProperty(VALUE_DELIMITER_PARAM_NAME);
+            String rightBracketStr = prop.getProperty(RIGHT_BRACKET_PARAM_NAME);
+            String leftColBracketStr = prop.getProperty(LEFT_COL_BRACKET_PARAM_NAME);
+            String rightColBracketStr = prop.getProperty(RIGHT_COL_BRACKET_PARAM_NAME);
 
             if(input == null || input.isEmpty()) {
                 throw new LogicException(INPUT_PATH_PARAM_NAME + " parameter is absent in config");
@@ -73,6 +79,18 @@ public class Config {
                 throw new LogicException(RIGHT_BRACKET_PARAM_NAME + "parameter is absent in config");
             } else {
                 rightBracket = rightBracketStr.charAt(0);
+            }
+
+            if(leftColBracketStr == null || leftColBracketStr.isEmpty()) {
+                throw new LogicException(LEFT_COL_BRACKET_PARAM_NAME + "parameter is absent in config");
+            } else {
+                leftColBracket = leftColBracketStr.charAt(0);
+            }
+
+            if(rightColBracketStr == null || rightColBracketStr.isEmpty()) {
+                throw new LogicException(RIGHT_COL_BRACKET_PARAM_NAME + "parameter is absent in config");
+            } else {
+                rightColBracket = rightColBracketStr.charAt(0);
             }
 
             if(valueDelimiterStr == null || valueDelimiterStr.isEmpty()) {
@@ -117,9 +135,19 @@ public class Config {
     }
 
     public char getValueDelimiter() {
+        ensureInit();
         return valueDelimiter;
     }
 
+    public char getLeftColBracket() {
+        ensureInit();
+        return leftColBracket;
+    }
+
+    public char getRightColBracket() {
+        ensureInit();
+        return rightColBracket;
+    }
     private void ensureInit() {
         if(!initiated) {
             throw new IllegalStateException("Configuration is not loaded");

@@ -27,9 +27,10 @@ public class ModelXmlWriter {
     public void write(Map<String, List<Object>> objMap) {
         for (Map.Entry<String, List<Object>> line : objMap.entrySet()) {
             alisedObjectsForXStream(line);
-            String xml = xstream.toXML(line.getValue());
-
-            logger.info(line.getKey() + ",\n" + xml);
+            for(Object object : line.getValue()) {
+                String xml = xstream.toXML(object);
+                logger.info(line.getKey() + ",\n" + xml);
+            }
         }
     }
 

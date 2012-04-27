@@ -1,28 +1,18 @@
 package parser.parser2;
 
+import java.util.List;
+
 /**
  * Created by IntelliJ IDEA.
  * User: al1
  * Date: 11.04.12
  */
-public class ListRecord extends Record {
-    @Override
-    public int getLength() {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+public class ListRecord extends ClassRecord {
+    public ListRecord(String listName, List<Record> listValues) {
+        super(listName, listValues);
     }
 
-    @Override
-    public String getName() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public Record getValue() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public String getContent() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    public ListRecord(String listName, List<Record> listValues, String listContent) {
+        super(listName, listValues, listContent);
     }
 }
